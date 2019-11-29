@@ -26,7 +26,7 @@ public class NioServer implements Runnable {
     private Dispatcher dispatcher;
 
     @Value("${server.port}")
-    private int defaultPort;
+    private int port;
 
     @Autowired
     public void setDispatcher(Dispatcher dispatcher) {
@@ -37,7 +37,7 @@ public class NioServer implements Runnable {
     @PostConstruct
     public void init() {
         this.ssc = ServerSocketChannel.open();
-        this.ssc.socket().bind(new InetSocketAddress(this.defaultPort));
+        this.ssc.socket().bind(new InetSocketAddress(this.port));
         this.ssc.configureBlocking(false);
         this.selector = Selector.open();
         this.ssc.register(selector, SelectionKey.OP_ACCEPT);
@@ -46,7 +46,7 @@ public class NioServer implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.printf("Server started on port %d\n", defaultPort);
+            System.out.printf("Server started on port %d\n", port);
             Iterator<SelectionKey> iterator;
             SelectionKey key;
             while (ssc.isOpen()) {
@@ -60,7 +60,7 @@ public class NioServer implements Runnable {
                 }
             }
         } catch (IOException e) {
-            System.out.println("IOException, server of port " + this.defaultPort + " terminating. Stack trace:");
+            System.out.println("IOException, server of port " + this.port + " terminating. Stack trace:");
             e.printStackTrace();
         }
     }
@@ -93,14 +93,12 @@ public class NioServer implements Runnable {
             ch.close();
         } else {
             System.out.println(key.attachment());
-//            msg = key.attachment() + ": " + sb.toString();
             msg = sb.toString();
         }
         dispatcher.handleMessage(msg)
                 .doOnNext(e -> this.sendMessage(e, key))
                 .doOnError(System.out::println)
                 .subscribe();
-//        broadcast(msg);
     }
 
     @SneakyThrows

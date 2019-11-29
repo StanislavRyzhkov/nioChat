@@ -1,5 +1,6 @@
 package company.ryzhkov.server.manage;
 
+import company.ryzhkov.server.model.User;
 import company.ryzhkov.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,18 +16,16 @@ public class Dispatcher {
     }
 
     public Mono<String> handleMessage(String message) {
-        if (message.startsWith("/reg")) {
-            String body = message.substring(4);
-            String[] elements = body.trim().split(" ");
-            String username = elements[1];
-            String password = elements[3];
-            return userService.register(username, password);
-        }
-        if (message.startsWith("/auth")) {
-            String body = message.substring(4);
-            String[] elements = body.trim().split(" ");
-            String username = elements[1];
-            String password = elements[3];
+        if (message.startsWith("/reg") || message.startsWith("/auth")) {
+            String[] elements = message.split(" ");
+            if (elements.length < 5) throw new RuntimeException("Неправильный ввод!");
+            String username = elements[2];
+            String password = elements[4];
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            if (elements[0].equals("/reg")) return userService.register(user);
+            else return userService.authenticate(user);
         }
         return Mono.just("FAIL");
     }

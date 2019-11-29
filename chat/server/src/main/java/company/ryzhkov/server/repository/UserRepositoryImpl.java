@@ -4,9 +4,15 @@ import com.mongodb.reactivestreams.client.Success;
 import company.ryzhkov.server.config.MongoConfig;
 import company.ryzhkov.server.model.User;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
+
+import static com.mongodb.client.model.Filters.eq;
+import static reactor.core.publisher.Mono.from;
 
 @Component
 public class UserRepositoryImpl implements UserRepository {
@@ -23,6 +29,20 @@ public class UserRepositoryImpl implements UserRepository {
         String password = user.getPassword();
         Document document = new Document("username", username)
                 .append("password", password);
-        return Mono.from(mongoConfig.getUserCollection().insertOne(document));
-    };
+        return from(mongoConfig.getUserCollection().insertOne(document));
+    }
+
+    @Override
+    public Mono<Optional<User>> findByUsername(String username) {
+        return from(mongoConfig.getUserCollection().find(eq("username", username))
+                .first())
+                .map(document -> {
+                    User user = new User();
+                    user.setId((ObjectId) document.get("_id"));
+                    user.setUsername((String) document.get("username"));
+                    user.setPassword((String) document.get("password"));
+                    return Optional.of(user);
+                })
+                .defaultIfEmpty(Optional.empty());
+    }
 }
