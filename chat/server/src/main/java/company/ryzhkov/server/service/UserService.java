@@ -1,5 +1,6 @@
 package company.ryzhkov.server.service;
 
+import company.ryzhkov.server.core.Watch;
 import company.ryzhkov.server.model.User;
 import company.ryzhkov.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class UserService {
         return userRepository.insert(user).map(success -> "USER CREATED");
     }
 
+    @Watch
     public Mono<String> authenticate(User user) {
         return userRepository
                 .findByUsername(user.getUsername())

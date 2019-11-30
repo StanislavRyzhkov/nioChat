@@ -1,5 +1,6 @@
 package company.ryzhkov.server.repository;
 
+import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.Success;
 import company.ryzhkov.server.config.MongoConfig;
 import company.ryzhkov.server.model.User;
@@ -17,6 +18,12 @@ import static reactor.core.publisher.Mono.from;
 @Component
 public class UserRepositoryImpl implements UserRepository {
     private MongoConfig mongoConfig;
+    private MongoCollection<Document> userCollection;
+
+    @Autowired
+    public void setUserCollection(MongoCollection<Document> userCollection) {
+        this.userCollection = userCollection;
+    }
 
     @Autowired
     public void setMongoConfig(MongoConfig mongoConfig) {
@@ -34,7 +41,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Mono<Optional<User>> findByUsername(String username) {
-        return from(mongoConfig.getUserCollection().find(eq("username", username))
+        return from(userCollection.find(eq("username", username))
                 .first())
                 .map(document -> {
                     User user = new User();

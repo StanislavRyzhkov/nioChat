@@ -1,7 +1,9 @@
 package company.ryzhkov.server.manage;
 
+import company.ryzhkov.server.core.Watch;
 import company.ryzhkov.server.model.User;
 import company.ryzhkov.server.service.UserService;
+import company.ryzhkov.server.util.WatchHandlerBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -15,6 +17,7 @@ public class Dispatcher {
         this.userService = userService;
     }
 
+    @Watch
     public Mono<String> handleMessage(String message) {
         if (message.startsWith("/reg") || message.startsWith("/auth")) {
             String[] elements = message.split(" ");

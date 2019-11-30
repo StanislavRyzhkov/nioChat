@@ -1,6 +1,5 @@
 package company.ryzhkov.server.core;
 
-import company.ryzhkov.server.manage.Dispatcher;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +13,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 @Component
@@ -23,14 +21,14 @@ public class NioServer implements Runnable {
     private ServerSocketChannel ssc;
     private Selector selector;
     private ByteBuffer buff = ByteBuffer.allocate(256);
-    private Dispatcher dispatcher;
+    private ReadHandler readHandler;
 
     @Value("${server.port}")
     private int port;
 
     @Autowired
-    public void setDispatcher(Dispatcher dispatcher) {
-        this.dispatcher = dispatcher;
+    public void setReadHandler(ReadHandler readHandler) {
+        this.readHandler = readHandler;
     }
 
     @SneakyThrows
@@ -56,7 +54,7 @@ public class NioServer implements Runnable {
                     key = iterator.next();
                     iterator.remove();
                     if (key.isAcceptable()) handleAccept(key);
-                    if (key.isReadable()) handleRead(key);
+                    if (key.isReadable()) readHandler.read(key, buff);
                 }
             }
         } catch (IOException e) {
@@ -75,44 +73,9 @@ public class NioServer implements Runnable {
         System.out.printf("Accepted connection from %s\n", address);
     }
 
-    private void handleRead(SelectionKey key) throws IOException {
-        SocketChannel ch = (SocketChannel) key.channel();
-        StringBuilder sb = new StringBuilder();
-        buff.clear();
-        int read = 0;
-        while ((read = ch.read(buff)) > 0) {
-            buff.flip();
-            byte[] bytes = new byte[buff.limit()];
-            buff.get(bytes);
-            sb.append(new String(bytes, StandardCharsets.UTF_8));
-            buff.clear();
-        }
-        String msg;
-        if (read < 0) {
-            msg = key.attachment() + " left the chat\n";
-            ch.close();
-        } else {
-            System.out.println(key.attachment());
-            msg = sb.toString();
-        }
-        dispatcher.handleMessage(msg)
-                .doOnNext(e -> this.sendMessage(e, key))
-                .doOnError(System.out::println)
-                .subscribe();
-    }
-
-    @SneakyThrows
-    private void sendMessage(String message, SelectionKey key) {
-        if (key.isValid() && key.channel() instanceof SocketChannel) {
-            ByteBuffer bb = ByteBuffer.wrap(message.getBytes());
-            ((SocketChannel) key.channel()).write(bb);
-            bb.rewind();
-        }
-    }
-
-    private void broadcast(String msg) throws IOException {
-        ByteBuffer msgBuffer = ByteBuffer.wrap(msg.getBytes());
-        selector.keys().forEach(e -> sendMessage(msg, e));
+//    private void broadcast(String msg) throws IOException {
+//        ByteBuffer msgBuffer = ByteBuffer.wrap(msg.getBytes());
+//        selector.keys().forEach(e -> sendMessage(msg, e));
 //        for (SelectionKey key : selector.keys()) {
 //            if (key.isValid() && key.channel() instanceof SocketChannel) {
 //                SocketChannel ch = (SocketChannel) key.channel();
@@ -120,5 +83,5 @@ public class NioServer implements Runnable {
 //                msgBuffer.rewind();
 //            }
 //        }
-    }
+//    }
 }
