@@ -1,4 +1,4 @@
-package company.ryzhkov.server.core;
+package company.ryzhkov.server.handler;
 
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;

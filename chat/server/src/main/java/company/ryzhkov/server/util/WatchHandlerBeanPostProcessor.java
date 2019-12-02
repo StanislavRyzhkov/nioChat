@@ -1,7 +1,6 @@
 package company.ryzhkov.server.util;
 
-import company.ryzhkov.server.core.Watch;
-import lombok.Getter;
+import company.ryzhkov.server.profiling.Watch;
 import lombok.extern.java.Log;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +16,6 @@ import java.util.Map;
 @Log
 @Component
 public class WatchHandlerBeanPostProcessor implements BeanPostProcessor {
-
-    @Getter
     private Map<String, Class> map = new HashMap<>();
 
     @Value("${bar.profiling}")

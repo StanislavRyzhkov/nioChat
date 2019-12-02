@@ -1,4 +1,4 @@
-package company.ryzhkov.server.core;
+package company.ryzhkov.server.profiling;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,15 +1,12 @@
 package company.ryzhkov.server.model;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.bson.types.ObjectId;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@Setter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public final class User {
-    private ObjectId id;
-    private String username;
-    private String password;
+    private final String id;
+    private final String username;
+    private final String password;
 }

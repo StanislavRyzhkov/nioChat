@@ -1,7 +1,7 @@
 package company.ryzhkov.server.service;
 
-import company.ryzhkov.server.core.Watch;
 import company.ryzhkov.server.model.User;
+import company.ryzhkov.server.profiling.Watch;
 import company.ryzhkov.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package company.ryzhkov.server.core;
 
+import company.ryzhkov.server.handler.ReadHandler;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,11 +27,6 @@ public class NioServer implements Runnable {
     @Value("${server.port}")
     private int port;
 
-    @Autowired
-    public void setReadHandler(ReadHandler readHandler) {
-        this.readHandler = readHandler;
-    }
-
     @SneakyThrows
     @PostConstruct
     public void init() {
@@ -39,6 +35,11 @@ public class NioServer implements Runnable {
         this.ssc.configureBlocking(false);
         this.selector = Selector.open();
         this.ssc.register(selector, SelectionKey.OP_ACCEPT);
+    }
+
+    @Autowired
+    public void setReadHandler(ReadHandler readHandler) {
+        this.readHandler = readHandler;
     }
 
     @Override

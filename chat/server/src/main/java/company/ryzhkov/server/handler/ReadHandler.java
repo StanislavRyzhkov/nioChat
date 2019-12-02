@@ -1,6 +1,7 @@
-package company.ryzhkov.server.core;
+package company.ryzhkov.server.handler;
 
-import company.ryzhkov.server.manage.Dispatcher;
+import company.ryzhkov.server.dispatcher.GenericDispatcher;
+import company.ryzhkov.server.profiling.Watch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class ReadHandler {
-    private Dispatcher dispatcher;
+    private GenericDispatcher dispatcher;
     private ResponseHandler responseHandler;
 
     @Autowired
-    public void setDispatcher(Dispatcher dispatcher) {
+    public void setDispatcher(GenericDispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }
 
